@@ -37,7 +37,17 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-node-app:latest
+            echo "Starting deployment on EC2..."
+            
+            # Stop and remove the old container if it exists
+            # The '|| true' ensures the script doesn't fail if the container isn't found
             docker stop my-node-container || true
             docker rm my-node-container || true
+            
+            # Pull the latest image from Docker Hub
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/my-node-app:latest
+            
+            # Run a new container from the updated image
             docker run -d -p 5000:5000 --name my-node-container ${{ secrets.DOCKERHUB_USERNAME }}/my-node-app:latest
+            
+            echo "Deployment complete!"
